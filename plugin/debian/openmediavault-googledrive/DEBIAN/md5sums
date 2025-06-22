@@ -1,9 +1,0 @@
-6af82781c78ad7abe4e6c21016cb6aaa  usr/share/doc/openmediavault-googledrive/changelog.gz
-8df52729f4b99d0ee7dbc6f58b158ee5  usr/share/openmediavault/engined/rpc/GoogleDrive.php
-ad0af9d9ecbfe4802bffc773375ca745  usr/share/openmediavault/engined/rpc/GoogleDriveAuth.php
-99bcf7b7d239478851a83c211d86b340  usr/share/openmediavault/engined/rpc/googledrive-mount.sh
-f25eb9c36fe5fd01127d5128f69893d4  usr/share/openmediavault/engined/rpc/googledrive-setup.sh
-6c41af014ce32b80268c1c5bf83e2260  usr/share/openmediavault/engined/rpc/googledrive-sync.sh
-da0f74c2dc075f15a1248e14d7d6b160  usr/share/openmediavault/workbench/component/googledrive.yaml
-e96508e59c0b20bfdf3c5ef900b524a8  usr/share/openmediavault/workbench/navigation/googledrive.yaml
-9198646a08fadec1e68189cf7b7fa2f7  usr/share/openmediavault/workbench/route/googledrive.yaml
