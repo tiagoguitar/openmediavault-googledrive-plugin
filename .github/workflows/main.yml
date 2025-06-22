@@ -25,16 +25,16 @@ jobs:
 
     - name: Build Debian package
       run: |
-        # Certifique-se de que o diretório do seu plugin está na raiz do repositório
-        # ou ajuste o caminho conforme necessário.
-        # Ex: se o seu plugin está em 'my-plugin-folder', use 'cd my-plugin-folder'
-        cd openmediavault-googledrive
+        # Removido o comando 'cd openmediavault-googledrive'
+        # pois o repositório já deve ser a raiz do seu plugin.
         dpkg-buildpackage -us -uc -b
 
     - name: Upload Debian package artifact
       uses: actions/upload-artifact@v4
       with:
         name: openmediavault-googledrive-deb
-        path: | # Ajuste o caminho para onde o .deb é gerado
+        # O .deb é gerado um nível acima do diretório de execução do dpkg-buildpackage.
+        # Como o dpkg-buildpackage é executado na raiz do repositório clonado,
+        # o .deb estará no diretório pai do diretório de trabalho atual.
+        path: | 
           ../openmediavault-googledrive_*.deb
-          # Se o .deb for gerado um nível acima, use: ../openmediavault-googledrive_*.deb
