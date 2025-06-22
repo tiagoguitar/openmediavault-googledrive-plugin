@@ -2,15 +2,14 @@ Source: openmediavault-googledrive
 Section: admin
 Priority: optional
 Maintainer: Your Name <your.email@example.com>
-Build-Depends: debhelper (>= 10~)
+Build-Depends: debhelper (>= 11), dh-shlibdeps, nodejs, npm
 Standards-Version: 4.5.0
 Homepage: https://github.com/yourusername/openmediavault-googledrive
 
 Package: openmediavault-googledrive
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, openmediavault (>= 6.0)
+Depends: ${misc:Depends}, ${shlibs:Depends}, openmediavault (>= 6)
 Description: OpenMediaVault plugin for Google Drive integration
  This plugin provides integration with Google Drive, allowing users to
  manage and synchronize files between their OpenMediaVault server and
  Google Drive.
-
