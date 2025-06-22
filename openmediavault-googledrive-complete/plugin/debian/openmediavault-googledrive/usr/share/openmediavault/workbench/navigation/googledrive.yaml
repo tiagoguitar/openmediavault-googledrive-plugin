@@ -1,0 +1,8 @@
+version: "1.0"
+type: navigation
+data:
+  - text: "Google Drive"
+    icon: "mdi:google-drive"
+    url: "/services/googledrive"
+    position: 50
+

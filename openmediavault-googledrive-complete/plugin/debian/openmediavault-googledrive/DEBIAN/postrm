@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    purge)
+        # Remover diretório de configuração e dados
+        if [ -d "/etc/openmediavault/googledrive" ]; then
+            echo "Removing Google Drive plugin configuration..."
+            rm -rf /etc/openmediavault/googledrive
+        fi
+
+        # Remover configuração do banco de dados do OMV
+        if command -v omv-confdbadm >/dev/null 2>&1; then
+            omv-confdbadm delete conf.service.googledrive 2>/dev/null || true
+        fi
+
+        # Remover dependências PHP (opcional, pode afetar outros plugins)
+        # cd /usr/share/openmediavault/engined/rpc
+        # composer remove google/apiclient 2>/dev/null || true
+
+        echo "Google Drive plugin configuration removed."
+        ;;
+
+    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        # Reiniciar o daemon do OpenMediaVault
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl reload openmediavault-engined || true
+        fi
+        ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+

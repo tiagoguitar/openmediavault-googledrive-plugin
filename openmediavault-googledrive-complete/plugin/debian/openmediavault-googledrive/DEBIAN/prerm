@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        # Parar serviços relacionados se estiverem rodando
+        if command -v systemctl >/dev/null 2>&1; then
+            # Desmontar qualquer montagem FUSE ativa
+            if mount | grep -q "googledrive"; then
+                echo "Unmounting Google Drive FUSE mounts..."
+                umount -l /mnt/googledrive 2>/dev/null || true
+            fi
+        fi
+
+        # Limpar processos relacionados
+        pkill -f "rclone.*googledrive" 2>/dev/null || true
+        ;;
+
+    failed-upgrade)
+        ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+
