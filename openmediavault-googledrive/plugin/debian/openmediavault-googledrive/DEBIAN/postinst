@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    configure)
+        # Criar diretório de configuração do plugin
+        if [ ! -d "/etc/openmediavault/googledrive" ]; then
+            mkdir -p /etc/openmediavault/googledrive
+            chmod 755 /etc/openmediavault/googledrive
+        fi
+
+        # Instalar dependências PHP via Composer
+        if command -v composer >/dev/null 2>&1; then
+            echo "Installing Google API PHP Client..."
+            cd /usr/share/openmediavault/engined/rpc
+            if [ ! -f "composer.json" ]; then
+                cat > composer.json << EOF
+{
+    "require": {
+        "google/apiclient": "^2.0"
+    }
+}
+EOF
+            fi
+            composer install --no-dev --optimize-autoloader
+        else
+            echo "Warning: Composer not found. Please install Google API PHP Client manually."
+            echo "Run: composer require google/apiclient"
+        fi
+
+        # Instalar rclone para montagem FUSE (opcional)
+        if ! command -v rclone >/dev/null 2>&1; then
+            echo "Installing rclone for FUSE mounting..."
+            curl https://rclone.org/install.sh | bash || echo "Warning: Failed to install rclone"
+        fi
+
+        # Recarregar configuração do OpenMediaVault
+        if command -v omv-confdbadm >/dev/null 2>&1; then
+            omv-confdbadm read conf.service.googledrive >/dev/null 2>&1 || {
+                echo "Creating default configuration..."
+                omv-confdbadm create conf.service.googledrive
+            }
+        fi
+
+        # Reiniciar o daemon do OpenMediaVault
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl reload openmediavault-engined || true
+        fi
+
+        echo "Google Drive plugin installed successfully!"
+        echo "Please configure the plugin through the OpenMediaVault web interface."
+        ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+
