@@ -30,9 +30,10 @@ jobs:
         # Ex: se o seu plugin está em 'my-plugin-folder', use 'cd my-plugin-folder'
         cd openmediavault-googledrive/plugin
         dpkg-buildpackage -us -uc -b
-        cd ../..
-        mkdir -p artifacts
-        mv openmediavault-googledrive_*.deb artifacts/
+        cd ..
+        mkdir -p ../artifacts
+        mv openmediavault-googledrive_*.deb ../artifacts/
+        cd ..
     
     - name: Upload Debian package artifact
       uses: actions/upload-artifact@v4
