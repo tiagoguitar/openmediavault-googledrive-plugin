@@ -28,7 +28,7 @@ jobs:
         # Certifique-se de que o diretório do seu plugin está na raiz do repositório
         # ou ajuste o caminho conforme necessário.
         # Ex: se o seu plugin está em 'my-plugin-folder', use 'cd my-plugin-folder'
-        cd openmediavault-googledrive
+        # cd openmediavault-googledrive
         dpkg-buildpackage -us -uc -b
 
     - name: Upload Debian package artifact
