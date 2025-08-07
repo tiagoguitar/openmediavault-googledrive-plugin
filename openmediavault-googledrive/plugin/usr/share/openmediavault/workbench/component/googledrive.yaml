@@ -24,29 +24,32 @@ data:
       - type: "container"
         fields:
           - type: "paragraph"
-            text: "Configure your Google Drive integration settings."
+            text: "Configure your Google Drive integration settings. First, ensure you have uploaded your client_secret.json file to /etc/openmediavault/googledrive/ directory."
           - type: "button"
             name: "authenticate"
-            text: "Authenticate with Google Drive"
+            text: "Get Authentication URL"
             request:
               service: "GoogleDrive"
               method: "getAuthUrl"
               progressMessage: "Getting authentication URL..."
-              successNotification: "Please follow the authentication URL to authorize the application."
+              successNotification: "Authentication URL generated. Please copy the URL from the response and open it in your browser."
           - type: "textInput"
             name: "authCode"
             label: "Authorization Code"
-            hint: "Enter the authorization code from Google after authentication."
+            hint: "After authorizing the application in your browser, copy the authorization code here."
+            validators:
+              required: true
           - type: "button"
             name: "setAuthCode"
-            text: "Set Authorization Code"
+            text: "Complete Authentication"
             request:
               service: "GoogleDrive"
               method: "setAuthCode"
               params:
                 authCode: "{{ authCode }}"
               progressMessage: "Setting authorization code..."
-              successNotification: "Authorization code set successfully."
+              successNotification: "Authentication completed successfully!"
+              errorNotification: "Authentication failed. Please check the authorization code."
 ---
 version: "1.0"
 type: component
@@ -62,7 +65,7 @@ data:
       - name: "name"
         text: "Name"
         sortable: true
-        flexGrow: 1
+        flexGrow: 2
       - name: "mimeType"
         text: "Type"
         sortable: true
@@ -85,7 +88,8 @@ data:
     actions:
       - type: "iconButton"
         icon: "download"
-        tooltip: "Download"
+        tooltip: "Download to /tmp"
+        enabledBy: "_selected.length === 1"
         execute:
           type: "request"
           request:
@@ -95,10 +99,15 @@ data:
               fileId: "{{ _selected[0].id }}"
               outputPath: "/tmp/{{ _selected[0].name }}"
             progressMessage: "Downloading file..."
-            successNotification: "File downloaded successfully."
+            successNotification: "File downloaded to /tmp/{{ _selected[0].name }}"
+            errorNotification: "Failed to download file."
       - type: "iconButton"
         icon: "delete"
-        tooltip: "Delete"
+        tooltip: "Delete from Google Drive"
+        enabledBy: "_selected.length === 1"
+        confirmationDialogConfig:
+          template: "confirmation"
+          message: "Do you really want to delete the selected file from Google Drive? This action is irreversible."
         execute:
           type: "request"
           request:
@@ -108,4 +117,5 @@ data:
               fileId: "{{ _selected[0].id }}"
             progressMessage: "Deleting file..."
             successNotification: "File deleted successfully."
+            errorNotification: "Failed to delete file."
 

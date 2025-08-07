@@ -1,0 +1,27 @@
+# Temporary files
+/tmp/
+*.tmp
+*.log
+*.pid
+
+# Build artifacts
+vendor/
+node_modules/
+*.deb
+
+# Google API credentials and tokens
+client_secret.json
+token.json
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test outputs
+test_*.log

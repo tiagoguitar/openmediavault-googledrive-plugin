@@ -1,0 +1,60 @@
+{
+    "type": "object",
+    "properties": {
+        "setauthcode": {
+            "type": "object",
+            "properties": {
+                "authCode": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["authCode"],
+            "additionalProperties": false
+        },
+        "downloadfile": {
+            "type": "object",
+            "properties": {
+                "fileId": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "outputPath": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["fileId", "outputPath"],
+            "additionalProperties": false
+        },
+        "uploadfile": {
+            "type": "object",
+            "properties": {
+                "filePath": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "fileName": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "parentId": {
+                    "type": "string"
+                }
+            },
+            "required": ["filePath", "fileName"],
+            "additionalProperties": false
+        },
+        "deletefile": {
+            "type": "object",
+            "properties": {
+                "fileId": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["fileId"],
+            "additionalProperties": false
+        }
+    }
+}
