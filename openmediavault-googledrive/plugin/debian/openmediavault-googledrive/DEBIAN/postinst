@@ -4,52 +4,96 @@ set -e
 
 case "$1" in
     configure)
-        # Criar diretório de configuração do plugin
-        if [ ! -d "/etc/openmediavault/googledrive" ]; then
-            mkdir -p /etc/openmediavault/googledrive
-            chmod 755 /etc/openmediavault/googledrive
+        # Create plugin configuration directory with proper permissions
+        PLUGIN_CONFIG_DIR="/etc/openmediavault/googledrive"
+        if [ ! -d "$PLUGIN_CONFIG_DIR" ]; then
+            mkdir -p "$PLUGIN_CONFIG_DIR"
+            chmod 750 "$PLUGIN_CONFIG_DIR"
+            chown root:openmediavault "$PLUGIN_CONFIG_DIR" 2>/dev/null || true
         fi
 
-        # Instalar dependências PHP via Composer
+        # Install Google API PHP Client using Composer
+        RPC_DIR="/usr/share/openmediavault/engined/rpc"
         if command -v composer >/dev/null 2>&1; then
             echo "Installing Google API PHP Client..."
-            cd /usr/share/openmediavault/engined/rpc
+            cd "$RPC_DIR"
+            
+            # Create composer.json if it doesn't exist
             if [ ! -f "composer.json" ]; then
-                cat > composer.json << EOF
+                cat > composer.json << 'EOF'
 {
     "require": {
         "google/apiclient": "^2.0"
+    },
+    "config": {
+        "optimize-autoloader": true
     }
 }
 EOF
             fi
-            composer install --no-dev --optimize-autoloader
+            
+            # Install dependencies
+            composer install --no-dev --optimize-autoloader --prefer-dist 2>/dev/null || {
+                echo "Warning: Failed to install Google API PHP Client via Composer."
+                echo "Please install manually: cd $RPC_DIR && composer require google/apiclient"
+            }
         else
-            echo "Warning: Composer not found. Please install Google API PHP Client manually."
-            echo "Run: composer require google/apiclient"
+            echo "Warning: Composer not found. Google API PHP Client must be installed manually."
+            echo "Install composer and run: cd $RPC_DIR && composer require google/apiclient"
         fi
 
-        # Instalar rclone para montagem FUSE (opcional)
+        # Install rclone if not present (for optional FUSE mounting)
         if ! command -v rclone >/dev/null 2>&1; then
-            echo "Installing rclone for FUSE mounting..."
-            curl https://rclone.org/install.sh | bash || echo "Warning: Failed to install rclone"
+            echo "rclone not found. Installing for FUSE mounting capabilities..."
+            if command -v wget >/dev/null 2>&1; then
+                cd /tmp
+                wget -q https://downloads.rclone.org/rclone-current-linux-amd64.zip 2>/dev/null || {
+                    echo "Warning: Failed to download rclone. FUSE mounting will not be available."
+                }
+                if [ -f rclone-current-linux-amd64.zip ]; then
+                    unzip -q rclone-current-linux-amd64.zip 2>/dev/null || true
+                    if [ -d rclone-*-linux-amd64 ]; then
+                        cp rclone-*-linux-amd64/rclone /usr/local/bin/ 2>/dev/null || {
+                            echo "Warning: Failed to install rclone to /usr/local/bin/"
+                        }
+                        chmod +x /usr/local/bin/rclone 2>/dev/null || true
+                    fi
+                    rm -rf rclone-* 2>/dev/null || true
+                fi
+            else
+                echo "Warning: wget not available. Please install rclone manually for FUSE mounting."
+            fi
         fi
 
-        # Recarregar configuração do OpenMediaVault
-        if command -v omv-confdbadm >/dev/null 2>&1; then
-            omv-confdbadm read conf.service.googledrive >/dev/null 2>&1 || {
-                echo "Creating default configuration..."
-                omv-confdbadm create conf.service.googledrive
+        # Create default mount point
+        MOUNT_POINT="/mnt/googledrive"
+        if [ ! -d "$MOUNT_POINT" ]; then
+            echo "Creating default mount point: $MOUNT_POINT"
+            mkdir -p "$MOUNT_POINT"
+            chmod 755 "$MOUNT_POINT"
+        fi
+
+        # Reload OpenMediaVault engine configuration
+        if command -v omv-engined >/dev/null 2>&1; then
+            echo "Reloading OpenMediaVault engine..."
+            systemctl reload openmediavault-engined 2>/dev/null || {
+                echo "Warning: Failed to reload OMV engine. Please restart it manually."
             }
         fi
 
-        # Reiniciar o daemon do OpenMediaVault
-        if command -v systemctl >/dev/null 2>&1; then
-            systemctl reload openmediavault-engined || true
-        fi
-
+        echo ""
+        echo "============================================="
         echo "Google Drive plugin installed successfully!"
-        echo "Please configure the plugin through the OpenMediaVault web interface."
+        echo "============================================="
+        echo ""
+        echo "Next steps:"
+        echo "1. Access the OpenMediaVault web interface"
+        echo "2. Navigate to Services > Google Drive"
+        echo "3. Configure OAuth 2.0 authentication"
+        echo "4. Upload your Google Cloud Console client_secret.json"
+        echo "   to: $PLUGIN_CONFIG_DIR/"
+        echo ""
+        echo "For detailed instructions, see the plugin documentation."
         ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
